@@ -86,6 +86,18 @@ app.post("/api/orders/create-razorpay-order", async (req, res) => {
   }
 });
 
+app.get("/api/orders/user/:userId", async (req, res) => {
+  try {
+    const orders = await Order.find({
+      userId: req.params.userId,
+    }).sort({ createdAt: -1 });
+
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
@@ -112,3 +124,4 @@ app.post("/api/orders", async (req, res) => {
     res.status(500).json({ error: "Order not saved" });
   }
 });
+
