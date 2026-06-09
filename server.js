@@ -183,6 +183,33 @@ app.post("/api/orders", async (req, res) => {
   }
 });
 
+
+
+
+////// ______________________________________________________________________________________________________________
+// Admin Panel ___________________---------------------------------------------------------
+
+app.patch("/api/orders/:id", async (req, res) => {
+  try {
+    const updated = await Order.findByIdAndUpdate(req.params.id, { orderStatus: req.body.status }, { new: true });
+    res.json(updated);
+  } catch (err) { res.status(500).json(err); }
+});
+
+app.delete("/api/orders/:id", async (req, res) => {
+  try {
+    await Order.findByIdAndDelete(req.params.id);
+    res.json({ message: "Order deleted" });
+  } catch (err) { res.status(500).json(err); }
+});
+
+app.delete("/api/products/:id", async (req, res) => {
+  try {
+    await Product.findByIdAndDelete(req.params.id);
+    res.json({ message: "Product deleted" });
+  } catch (err) { res.status(500).json(err); }
+});
+
 // ─── Start ────────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
