@@ -209,7 +209,15 @@ app.delete("/api/products/:id", async (req, res) => {
     res.json({ message: "Product deleted" });
   } catch (err) { res.status(500).json(err); }
 });
-
+// GET all orders (admin only)
+app.get("/api/orders", async (req, res) => {
+  try {
+    const orders = await Order.find().sort({ createdAt: -1 });
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch orders" });
+  }
+});
 // ─── Start ────────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
