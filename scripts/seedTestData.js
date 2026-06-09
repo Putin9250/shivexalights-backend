@@ -1,4 +1,3 @@
-// scripts/seedTestData.js
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import Product from "../models/Product.js";
@@ -39,6 +38,7 @@ const generateProducts = (count) => {
       isFeatured: Math.random() > 0.8,
       isTrending: Math.random() > 0.7,
       sizes: Math.random() > 0.5 ? [{ name: "Standard", price }] : [],
+      stock: randomInt(0, 50),  // 👈 add random stock between 0 and 50
     });
   }
   return products;
@@ -46,9 +46,17 @@ const generateProducts = (count) => {
 
 const seed = async () => {
   try {
+    // Read count from command line argument (default 100)
+    const count = process.argv[2] ? parseInt(process.argv[2]) : 100;
+    if (isNaN(count) || count <= 0) {
+      console.error("Invalid count. Please provide a positive number.");
+      process.exit(1);
+    }
+
     await mongoose.connect(process.env.MONGO_URL);
-    await Product.deleteMany({ categories: { $in: categories } }); // clear old test data
-    const products = generateProducts(100);
+    // Only delete products of the target categories (optional – remove if you want to keep other data)
+    await Product.deleteMany({ categories: { $in: categories } });
+    const products = generateProducts(count);
     await Product.insertMany(products);
     console.log(`✅ Inserted ${products.length} test products.`);
     process.exit();
