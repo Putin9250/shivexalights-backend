@@ -7,7 +7,7 @@ const BlogSchema = new mongoose.Schema(
     excerpt: String,
     content: { type: String, required: true },
     coverImg: String,
-    author: { type: String, default: "Shiv exa Editorial" },
+    author: { type: String, default: "Shivexa Lighting Editorial" },
     tags: [String],
     isPublished: { type: Boolean, default: true },
   },
