@@ -66,7 +66,10 @@ app.get("/sitemap.xml", async (req, res) => {
     const urls = [
       ...staticRoutes.map((path) => ({ loc: `${siteUrl}/#${path}` })),
       ...products.map((product) => ({ loc: `${siteUrl}/#/product/${product._id}`, lastmod: product.updatedAt })),
-      ...blogs.map((blog) => ({ loc: `${siteUrl}/#/blog/${blog._id}`, lastmod: blog.updatedAt })),
+      ...blogs.map((blog) => ({
+  loc: `${siteUrl}/#/blog/${blog.slug || blog._id}`,
+  lastmod: blog.updatedAt,
+})),
     ];
     const body = urls.map(({ loc, lastmod }) => `<url><loc>${xmlEscape(loc)}</loc>${lastmod ? `<lastmod>${new Date(lastmod).toISOString().slice(0, 10)}</lastmod>` : ""}</url>`).join("");
     res.type("application/xml").send(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${body}</urlset>`);
@@ -382,13 +385,25 @@ app.get("/api/blogs", async (req, res) => {
   }
 });
 
-app.get("/api/blogs/:id", async (req, res) => {
+app.get("/api/blogs/:slugOrId", async (req, res) => {
   try {
-    const blog = await Blog.findById(req.params.id);
-    if (!blog) return res.status(404).json({ message: "Blog not found" });
+    const { slugOrId } = req.params;
+
+    let blog = await Blog.findOne({ slug: slugOrId });
+
+    // Backward compatibility for old blog URLs
+    if (!blog && mongoose.Types.ObjectId.isValid(slugOrId)) {
+      blog = await Blog.findById(slugOrId);
+    }
+
+    if (!blog) {
+      return res.status(404).json({ message: "Blog not found" });
+    }
+
     res.json(blog);
   } catch (err) {
-    res.status(500).json(err);
+    console.error("Get blog error:", err);
+    res.status(500).json({ error: "Failed to fetch blog" });
   }
 });
 
