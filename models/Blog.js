@@ -10,6 +10,10 @@ const BlogSchema = new mongoose.Schema(
     author: { type: String, default: "Shivexa Lighting Editorial" },
     tags: [String],
     isPublished: { type: Boolean, default: true },
+
+    // SEO metadata
+    seoTitle: { type: String, default: "" },
+    seoDescription: { type: String, default: "" },
   },
   { timestamps: true }
 );
